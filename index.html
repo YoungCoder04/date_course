@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9526378112286524"
-     crossorigin="anonymous"></script>
+crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>발걸음 — 지역별 데이트 코스</title>
@@ -33,9 +33,13 @@
   h1,h2,h3,.display { font-family:'Instrument Serif', Georgia, serif; font-weight:400; letter-spacing:0.005em; }
   a { color:inherit; text-decoration:none; }
 
-  header { position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,56px); background:var(--bg); border-bottom:1px solid var(--line); }
-  .logo { font-size:1.4rem; }
+  header { position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,56px); background:var(--bg); border-bottom:1px solid var(--line); gap:20px; }
+  .logo { font-size:1.4rem; flex-shrink:0; }
   .logo span { color:var(--accent); }
+  .main-nav { display:flex; gap:18px; overflow-x:auto; scrollbar-width:none; }
+  .main-nav::-webkit-scrollbar { display:none; }
+  .main-nav a { font-size:0.84rem; color:var(--ink-soft); white-space:nowrap; }
+  .main-nav a:hover { color:var(--ink); }
 
   .hero { max-width:760px; margin:0 auto; padding:clamp(40px,7vw,70px) 20px 20px; text-align:center; }
   .hero h1 { font-size:clamp(1.9rem,4.6vw,2.9rem); line-height:1.2; margin:0 0 14px; }
@@ -89,6 +93,27 @@
   .walk-note { color:var(--ink-soft); font-size:0.8rem; margin-top:8px; display:flex; align-items:center; gap:6px; }
 
   footer { text-align:center; padding:30px 20px; color:var(--ink-soft); font-size:0.82rem; border-top:1px solid var(--line); }
+  footer .foot-links { display:flex; gap:14px; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
+  footer .foot-links a { color:var(--ink-soft); font-size:0.82rem; }
+  footer .foot-links a:hover { color:var(--ink); }
+
+  .info-section { max-width:760px; margin:0 auto; padding:44px 20px; border-top:1px solid var(--line); }
+  .info-section h2 { font-size:1.4rem; margin:0 0 16px; }
+  .info-section p { color:var(--ink-soft); font-size:0.95rem; margin:0 0 10px; }
+
+  .reason-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-top:18px; }
+  .reason-card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px; }
+  .reason-card h3 { font-size:1rem; margin:0 0 6px; font-family:'Inter'; font-weight:600; }
+  .reason-card p { font-size:0.88rem; margin:0; color:var(--ink-soft); }
+
+  .step-row { display:flex; gap:16px; margin-top:18px; flex-wrap:wrap; }
+  .step-item { flex:1; min-width:160px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; }
+  .step-num { color:var(--accent); font-size:0.82rem; margin-bottom:6px; }
+  .step-item h3 { font-size:0.98rem; margin:0 0 6px; font-family:'Inter'; font-weight:600; }
+  .step-item p { font-size:0.86rem; margin:0; color:var(--ink-soft); }
+
+  .contact-box { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; margin-top:14px; }
+  .contact-box a { color:var(--accent); }
 
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
 </style>
@@ -97,15 +122,23 @@
 
 <header>
   <div class="logo display">발걸음<span>.</span></div>
+  <nav class="main-nav">
+    <a href="#intro">데이트 코스 소개</a>
+    <a href="#area-section">지역별 데이트 장소</a>
+    <a href="#why">코스 추천 이유</a>
+    <a href="#how">이용 방법</a>
+    <a href="#about">사이트 소개</a>
+    <a href="#contact">문의/연락처</a>
+  </nav>
 </header>
 
 <main id="view-list">
-  <div class="hero">
+  <div class="hero" id="intro">
     <h1 class="display">어디서, 어떤 순서로 걸을지<br>고민하지 마세요</h1>
     <p>동네별로 검증된 데이트 코스를 동선까지 짜서 보여드려요. 코스를 눌러보면 시간대별 장소와 이동 거리까지 확인할 수 있어요.</p>
   </div>
 
-  <section class="shelf-section">
+  <section class="shelf-section" id="area-section">
     <div class="section-head">
       <h2 class="display">지역별 코스</h2>
       <div class="filters" id="areaFilters"></div>
@@ -120,6 +153,60 @@
     </div>
     <div class="grid" id="moodGrid"></div>
   </section>
+
+  <section class="info-section" id="why">
+    <h2 class="display">코스 추천 이유</h2>
+    <p>장소 하나하나보다, 그 사이의 흐름을 먼저 봅니다.</p>
+    <div class="reason-grid">
+      <div class="reason-card">
+        <h3>동선까지 고려해요</h3>
+        <p>이동 거리와 순서까지 미리 짜여있어서, 그날은 길 찾는 데 마음 쓰지 않아도 돼요.</p>
+      </div>
+      <div class="reason-card">
+        <h3>흐름을 먼저 설계해요</h3>
+        <p>조용한 곳에서 활기찬 곳으로, 혹은 그 반대로— 감정의 흐름을 따라 순서를 짰어요.</p>
+      </div>
+      <div class="reason-card">
+        <h3>다녀온 곳만 담아요</h3>
+        <p>목록만 나열하지 않고, 실제로 걸어본 코스 위주로 추립니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section" id="how">
+    <h2 class="display">이용 방법</h2>
+    <div class="step-row">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <h3>지역이나 분위기를 골라요</h3>
+        <p>오늘 마음에 가까운 쪽을 먼저 선택해보세요.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <h3>코스 카드를 눌러요</h3>
+        <p>시간대별 장소와 이동 거리가 담긴 상세 페이지가 열려요.</p>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <h3>순서대로 걸어요</h3>
+        <p>정해진 시간에 맞춰, 짜여진 동선을 따라가기만 하면 돼요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="info-section" id="about">
+    <h2 class="display">사이트 소개</h2>
+    <p>발걸음은 "이 동네, 어떤 순서로 걸어야 할지 몰라 헤맸던 경험"에서 시작된 아이디어예요. 장소 정보는 흩어져 있어도, 동선까지 짜인 코스는 의외로 찾기 어렵다는 생각에서 만들어봤습니다.</p>
+    <p>지금 보시는 페이지는 아이디어를 검증해보기 위한 데모이며, 실제 서비스로 이어질지는 반응을 보고 결정할 예정이에요.</p>
+  </section>
+
+  <section class="info-section" id="contact">
+    <h2 class="display">문의/연락처</h2>
+    <p>궁금한 점이 있거나, 추천하고 싶은 코스가 있다면 편하게 남겨주세요.</p>
+    <div class="contact-box">
+      <p style="margin:0;">이메일 · <a href="mailto:hello@balgeolm.demo">hello@balgeolm.demo</a></p>
+    </div>
+  </section>
 </main>
 
 <main id="view-detail">
@@ -133,7 +220,24 @@
   <div class="timeline" id="timeline"></div>
 </main>
 
-<footer>이 페이지는 아이디어 검증용 데모입니다 · 실제 장소 정보는 예시입니다</footer>
+<section class="info-section" id="privacy" style="max-width:760px;">
+  <h2 class="display">개인정보처리방침</h2>
+  <p>이 사이트는 아이디어 검증을 위한 데모입니다. 실제로 개인정보를 수집·저장하지 않으며, 장바구니나 문의 내용은 서버에 남지 않습니다. 실제 서비스로 전환될 경우, 이 자리에 정식 개인정보처리방침이 게시될 예정입니다.</p>
+</section>
+
+<section class="info-section" id="terms" style="max-width:760px;">
+  <h2 class="display">이용약관</h2>
+  <p>본 페이지의 코스, 장소, 소요 시간 등 모든 정보는 예시 목적으로 작성된 가상의 콘텐츠이며, 실제 장소 정보와 다를 수 있습니다. 이 사이트를 통한 예약이나 결제는 이루어지지 않습니다.</p>
+</section>
+
+<footer>
+  <div class="foot-links">
+    <a href="#privacy">개인정보처리방침</a>
+    <a href="#terms">이용약관</a>
+    <a href="#contact">문의</a>
+  </div>
+  이 페이지는 아이디어 검증용 데모입니다 · 실제 장소 정보는 예시입니다
+</footer>
 
 <script>
 const courses = [
