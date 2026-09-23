@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>발걸음 — 지역별 데이트 코스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F5;
+    --ink: #241A1E;
+    --ink-soft: #7A6A6E;
+    --line: #E6DCDA;
+    --card: #FFFFFF;
+    --accent: #A24657;
+    --accent-soft: #F3E2E3;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#1C1416; --ink:#F3E9EA; --ink-soft:#B79FA3; --line:#3A2A2D; --card:#241A1D; --accent:#E58A9A; --accent-soft:#332326; }
+  }
+  :root[data-theme="dark"] { --bg:#1C1416; --ink:#F3E9EA; --ink-soft:#B79FA3; --line:#3A2A2D; --card:#241A1D; --accent:#E58A9A; --accent-soft:#332326; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; line-height:1.55; }
+  h1,h2,h3,.display { font-family:'Instrument Serif', Georgia, serif; font-weight:400; letter-spacing:0.005em; }
+  a { color:inherit; text-decoration:none; }
+
+  header { position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,56px); background:var(--bg); border-bottom:1px solid var(--line); }
+  .logo { font-size:1.4rem; }
+  .logo span { color:var(--accent); }
+
+  .hero { max-width:760px; margin:0 auto; padding:clamp(40px,7vw,70px) 20px 20px; text-align:center; }
+  .hero h1 { font-size:clamp(1.9rem,4.6vw,2.9rem); line-height:1.2; margin:0 0 14px; }
+  .hero p { color:var(--ink-soft); font-size:1rem; margin:0; }
+
+  .filter-group { max-width:1100px; margin:16px auto 0; padding:0 20px; display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; justify-content:center; }
+  .filter-group .label { color:var(--ink-soft); font-size:0.82rem; margin-right:2px; }
+  .filters { display:flex; gap:8px; flex-wrap:wrap; }
+  .filter-btn { border:1px solid var(--line); background:var(--card); color:var(--ink-soft); padding:8px 16px; border-radius:999px; font-size:0.86rem; cursor:pointer; font-family:inherit; }
+  .filter-btn.active { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+  .filter-btn.active.area-active { background:var(--accent); border-color:var(--accent); }
+
+  .shelf-section { max-width:1100px; margin:0 auto; padding:34px 20px 10px; }
+  .shelf-section + .shelf-section { border-top:1px solid var(--line); margin-top:20px; padding-top:44px; }
+  .section-head { display:flex; flex-direction:column; align-items:flex-start; gap:14px; margin-bottom:26px; }
+  .section-head h2 { font-size:1.5rem; margin:0; white-space:nowrap; }
+  .section-head .filters { justify-content:flex-start; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:26px; padding-bottom:20px; }
+  .course-card { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; }
+  .course-card:hover { transform:translateY(-3px); box-shadow:0 10px 24px rgba(36,26,30,0.08); }
+  .cover { aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; font-size:3.4rem; position:relative; overflow:hidden; box-shadow: inset 0 -30px 50px -20px rgba(0,0,0,0.18); }
+  .cover::after { content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 20%, rgba(255,255,255,0.35), transparent 55%); }
+  .cover .bg-icon { position:absolute; font-size:6.5rem; opacity:0.16; right:-10px; bottom:-18px; transform:rotate(-8deg); }
+  .cover .area-tag { position:absolute; bottom:10px; left:12px; background:rgba(255,255,255,0.85); color:#241A1E; font-size:0.76rem; padding:4px 10px; border-radius:999px; z-index:1; }
+  .cover .main-icon { position:relative; z-index:1; }
+  .course-body { padding:16px 18px 20px; }
+  .course-body h3 { font-size:1.25rem; margin:0 0 6px; }
+  .course-body .desc { color:var(--ink-soft); font-size:0.9rem; margin:0 0 12px; }
+  .moods { display:flex; gap:6px; flex-wrap:wrap; }
+  .mood-chip { font-size:0.74rem; color:var(--accent); background:var(--accent-soft); padding:3px 9px; border-radius:999px; }
+
+  /* Detail view */
+  #view-detail { display:none; }
+  .detail-hero { padding:30px clamp(20px,5vw,56px) 24px; max-width:820px; margin:0 auto; }
+  .back-btn { background:none; border:none; color:var(--ink-soft); font-size:0.9rem; cursor:pointer; padding:0 0 18px; font-family:inherit; }
+  .detail-hero .cover { aspect-ratio:16/7; border-radius:10px; font-size:3.2rem; margin-bottom:22px; }
+  .detail-hero h2 { font-size:clamp(1.7rem,4vw,2.3rem); margin:0 0 8px; }
+  .detail-hero .sub { color:var(--ink-soft); font-size:0.94rem; margin:0 0 14px; }
+
+  .timeline { max-width:820px; margin:0 auto; padding:0 clamp(20px,5vw,56px) 90px; }
+  .stop { display:flex; gap:18px; }
+  .stop-rail { display:flex; flex-direction:column; align-items:center; }
+  .stop-dot { width:12px; height:12px; border-radius:50%; background:var(--accent); margin-top:6px; flex-shrink:0; }
+  .stop-line { flex:1; width:1px; background:var(--line); min-height:40px; }
+  .stop-content { padding-bottom:30px; flex:1; }
+  .stop-time { color:var(--accent); font-size:0.82rem; margin-bottom:4px; }
+  .stop-name { font-size:1.12rem; margin:0 0 6px; }
+  .stop-cat { color:var(--ink-soft); font-size:0.8rem; margin-bottom:8px; }
+  .stop-note { font-size:0.92rem; color:var(--ink); }
+  .walk-note { color:var(--ink-soft); font-size:0.8rem; margin-top:8px; display:flex; align-items:center; gap:6px; }
+
+  footer { text-align:center; padding:30px 20px; color:var(--ink-soft); font-size:0.82rem; border-top:1px solid var(--line); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo display">발걸음<span>.</span></div>
+</header>
+
+<main id="view-list">
+  <div class="hero">
+    <h1 class="display">어디서, 어떤 순서로 걸을지<br>고민하지 마세요</h1>
+    <p>동네별로 검증된 데이트 코스를 동선까지 짜서 보여드려요. 코스를 눌러보면 시간대별 장소와 이동 거리까지 확인할 수 있어요.</p>
+  </div>
+
+  <section class="shelf-section">
+    <div class="section-head">
+      <h2 class="display">지역별 코스</h2>
+      <div class="filters" id="areaFilters"></div>
+    </div>
+    <div class="grid" id="areaGrid"></div>
+  </section>
+
+  <section class="shelf-section">
+    <div class="section-head">
+      <h2 class="display">분위기별 코스</h2>
+      <div class="filters" id="moodFilters"></div>
+    </div>
+    <div class="grid" id="moodGrid"></div>
+  </section>
+</main>
+
+<main id="view-detail">
+  <div class="detail-hero">
+    <button class="back-btn" id="backBtn">← 전체 코스로</button>
+    <div class="cover" id="detailCover"></div>
+    <h2 class="display" id="detailTitle"></h2>
+    <p class="sub" id="detailSub"></p>
+    <div class="moods" id="detailMoods"></div>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</main>
+
+<footer>이 페이지는 아이디어 검증용 데모입니다 · 실제 장소 정보는 예시입니다</footer>
+
+<script>
+const courses = [
+  {
+    id: "seongsu-calm",
+    title: "성수 감성 산책 코스",
+    area: "성수",
+    desc: "커피 한 잔의 온기로 시작해서, 말없이 걷는 사이에도 마음이 오가는 하루",
+    moods: ["조용한", "감성적인"],
+    icon: "☕", bgIcon: "🎨", grad: "linear-gradient(155deg,#F3E2E3,#E9C7CC 70%)",
+    stops: [
+      { time:"10:30", name:"대림창고 로스터리", cat:"카페", note:"이른 시간이라 한적해서, 낮은 목소리로도 이야기가 충분히 오가는 창가 자리.", walk:"도보 5분" },
+      { time:"11:30", name:"성수 편집숍 거리", cat:"쇼핑", note:"특별히 살 게 없어도, 나란히 구경만 해도 좋은 골목.", walk:"도보 3분" },
+      { time:"12:30", name:"브런치 다이닝", cat:"식사", note:"창밖 풍경을 곁들여 먹으면, 평범한 브런치도 오래 기억에 남아요.", walk:"도보 8분" },
+      { time:"14:00", name:"서울숲 산책로", cat:"산책", note:"나무 그늘을 따라 걷다 보면, 이야기가 끊기지 않고 자연스레 이어져요.", walk:"" },
+    ],
+  },
+  {
+    id: "yeonnam-evening",
+    title: "연남 저녁 데이트 코스",
+    area: "연남",
+    desc: "노을이 골목 사이로 스며들 때쯤, 자연스레 잔을 부딪히게 되는 저녁",
+    moods: ["활기찬", "골목길"],
+    icon: "🥂", bgIcon: "🏮", grad: "linear-gradient(155deg,#E8E2F3,#C9BEE0 70%)",
+    stops: [
+      { time:"18:00", name:"연남동 골목 산책", cat:"산책", note:"조명이 하나둘 켜지는 골목을 따라, 천천히 마음을 여는 시간.", walk:"도보 6분" },
+      { time:"18:40", name:"타파스 바", cat:"식사", note:"작은 접시들을 나눠 먹다 보면, 대화도 자연스레 이어져요.", walk:"도보 4분" },
+      { time:"20:00", name:"자연와인 바", cat:"바", note:"한 잔, 두 잔 비우다 보면 어느새 편해지는 조용한 마무리.", walk:"" },
+    ],
+  },
+  {
+    id: "euljiro-retro",
+    title: "을지로 노포 & 바 코스",
+    area: "을지로",
+    desc: "낡은 간판 아래에서 시작해, 예상 못한 반전으로 끝맺는 하룻밤",
+    moods: ["힙한", "레트로"],
+    icon: "🍶", bgIcon: "🏭", grad: "linear-gradient(155deg,#EFE7D6,#D9C79A 70%)",
+    stops: [
+      { time:"19:00", name:"노포 골목 저녁", cat:"식사", note:"손때 묻은 간판과 좁은 골목이 만드는, 시간이 멈춘 듯한 시작.", walk:"도보 5분" },
+      { time:"20:30", name:"인쇄골목 루프탑 바", cat:"바", note:"낡은 건물 사이로 펼쳐지는 뜻밖의 야경이, 이 코스의 반전이에요.", walk:"" },
+    ],
+  },
+  {
+    id: "hannam-gallery",
+    title: "한남 갤러리 코스",
+    area: "한남",
+    desc: "작품 하나를 오래 바라보고 나면, 나눌 이야기가 저절로 생기는 시간",
+    moods: ["조용한", "문화"],
+    icon: "🖼️", bgIcon: "🕊️", grad: "linear-gradient(155deg,#E3EAE6,#BFD2C7 70%)",
+    stops: [
+      { time:"14:00", name:"소규모 갤러리 전시", cat:"전시", note:"크지 않은 공간이라, 부담 없이 서로의 속도로 둘러볼 수 있어요.", walk:"도보 7분" },
+      { time:"15:30", name:"디저트 카페", cat:"카페", note:"방금 본 작품의 여운을 나누기 좋은, 조용한 창가 자리.", walk:"" },
+    ],
+  },
+  {
+    id: "jamsil-view",
+    title: "잠실 한강뷰 코스",
+    area: "잠실",
+    desc: "노을이 한강 위로 번질 때, 굳이 말하지 않아도 충분한 시간",
+    moods: ["활기찬", "탁트인"],
+    icon: "🎡", bgIcon: "🌇", grad: "linear-gradient(155deg,#DCEBF5,#8FC1E0 75%)",
+    stops: [
+      { time:"15:00", name:"롯데월드타워 전망대", cat:"전망대", note:"해가 기울 때까지 머물러도 좋을 만큼, 느긋하게 시간을 보낼 수 있어요.", walk:"도보 10분" },
+      { time:"17:00", name:"석촌호수 산책로", cat:"산책", note:"계절과 상관없이, 물가를 따라 걷기만 해도 마음이 편해지는 길.", walk:"도보 6분" },
+      { time:"18:30", name:"한강뷰 다이닝", cat:"식사", note:"노을이 물드는 시간에 맞춰 창가 자리를 잡으면, 그 자체로 배경이 돼요.", walk:"" },
+    ],
+  },
+  {
+    id: "gangnam-modern",
+    title: "강남 모던 다이닝 코스",
+    area: "강남",
+    desc: "불필요한 것들을 걷어내고, 서로의 이야기에만 집중하게 되는 자리",
+    moods: ["세련된", "조용한"],
+    icon: "🥂", bgIcon: "🌃", grad: "linear-gradient(155deg,#EDEAE4,#C9BFA9 75%)",
+    stops: [
+      { time:"19:00", name:"오마카세 다이닝", cat:"식사", note:"한 접시씩 천천히 나오는 코스라, 대화도 그만큼 천천히 깊어져요.", walk:"도보 5분" },
+      { time:"21:00", name:"루프탑 라운지 바", cat:"바", note:"도심의 불빛을 내려다보며, 하루를 조용히 마무리하는 자리.", walk:"" },
+    ],
+  },
+  {
+    id: "hongdae-energetic",
+    title: "홍대 에너지 코스",
+    area: "홍대",
+    desc: "거리의 음악을 따라 걷다 보면, 어느새 마음이 들썩이는 하루",
+    moods: ["활기찬", "젊음"],
+    icon: "🎸", bgIcon: "🎨", grad: "linear-gradient(155deg,#F5E1EC,#E89AC2 75%)",
+    stops: [
+      { time:"17:00", name:"홍대 버스킹 거리", cat:"산책", note:"걷다가도 발걸음을 멈추게 만드는, 거리 곳곳의 작은 무대들.", walk:"도보 4분" },
+      { time:"18:00", name:"소품샵 골목", cat:"쇼핑", note:"작은 가게들을 하나씩 들르며, 서로의 취향을 알아가게 돼요.", walk:"도보 5분" },
+      { time:"19:30", name:"이색 컨셉 펍", cat:"바", note:"가벼운 게임 하나면, 어색함은 금세 잊게 돼요.", walk:"" },
+    ],
+  },
+  {
+    id: "konkuk-lively",
+    title: "건대 캠퍼스 코스",
+    area: "건대",
+    desc: "젊은 활기 속에 섞여, 힘 빼고 편하게 웃을 수 있는 하루",
+    moods: ["활기찬", "캐주얼"],
+    icon: "🎳", bgIcon: "🍺", grad: "linear-gradient(155deg,#FCEBD2,#F0BE7A 75%)",
+    stops: [
+      { time:"18:00", name:"건대 로데오거리 저녁", cat:"식사", note:"고를 게 많아서, 취향이 달라도 맞춰가기 쉬운 저녁.", walk:"도보 5분" },
+      { time:"19:30", name:"볼링장 or 오락실", cat:"액티비티", note:"가벼운 승부욕 하나로, 어느새 거리감이 훌쩍 줄어들어요.", walk:"도보 3분" },
+      { time:"21:00", name:"포차 거리", cat:"바", note:"왁자지껄한 소리에 묻혀, 오히려 마음 편히 마무리하는 밤.", walk:"" },
+    ],
+  },
+  {
+    id: "seongsu-brunch",
+    title: "성수 리버뷰 브런치 코스",
+    area: "성수",
+    desc: "느린 아침과 강바람으로 채우는, 서두르지 않아도 되는 주말",
+    moods: ["여유로운", "트렌디"],
+    icon: "🥐", bgIcon: "🏙️", grad: "linear-gradient(155deg,#FDEFE0,#F0C89A 75%)",
+    stops: [
+      { time:"11:00", name:"리버뷰 브런치 카페", cat:"식사", note:"강이 보이는 자리 하나를 위해서라도, 문 여는 시간에 맞춰볼 만해요.", walk:"도보 6분" },
+      { time:"12:30", name:"성수 편집숍 투어", cat:"쇼핑", note:"골목마다 들어선 쇼룸들을 구경하며, 자연스레 발걸음이 느려져요.", walk:"도보 5분" },
+      { time:"14:00", name:"루프탑 카페", cat:"카페", note:"낮의 여운을 커피 한 잔에 담아 마무리하는 자리.", walk:"" },
+    ],
+  },
+  {
+    id: "gangnam-activity",
+    title: "강남 액티비티 코스",
+    area: "강남",
+    desc: "몸을 움직이다 보면 어느새 어색함도 잊게 되는, 가벼운 하루",
+    moods: ["활기찬", "캐주얼"],
+    icon: "🎮", bgIcon: "🕹️", grad: "linear-gradient(155deg,#E4E9F5,#A9BEE8 75%)",
+    stops: [
+      { time:"14:00", name:"VR 체험존", cat:"액티비티", note:"함께 머리를 맞대다 보면, 낯가림은 어느새 사라지고 없어요.", walk:"도보 4분" },
+      { time:"16:00", name:"디저트 카페", cat:"카페", note:"방금의 승부를 안주 삼아, 가볍게 웃으며 쉬어가는 자리.", walk:"" },
+    ],
+  },
+  {
+    id: "hongdae-indie",
+    title: "홍대 인디 감성 코스",
+    area: "홍대",
+    desc: "좋아하는 노래 한 곡, 좋아하는 장면 하나를 나누게 되는 하루",
+    moods: ["감성적인", "힙한"],
+    icon: "🎧", bgIcon: "🎨", grad: "linear-gradient(155deg,#EDE3F0,#C9A8D6 75%)",
+    stops: [
+      { time:"15:00", name:"바이닐 레코드샵", cat:"쇼핑", note:"판을 넘기다 보면, 서로의 플레이리스트를 자연스레 알게 돼요.", walk:"도보 7분" },
+      { time:"16:30", name:"인디 소극장 공연", cat:"공연", note:"작은 무대라서 더 가까이 느껴지고, 끝나고 나눌 이야기도 많아져요.", walk:"도보 5분" },
+      { time:"18:00", name:"작업실 카페", cat:"카페", note:"무대의 여운이 채 가시기 전에, 나란히 앉아 이야기를 이어가는 곳.", walk:"" },
+    ],
+  },
+  {
+    id: "jamsil-indoor",
+    title: "잠실 실내 데이트 코스",
+    area: "잠실",
+    desc: "날씨를 신경 쓰지 않아도 되는, 마음 편히 흘러가는 하루",
+    moods: ["캐주얼", "조용한"],
+    icon: "🎬", bgIcon: "🍿", grad: "linear-gradient(155deg,#E7EEF5,#9FC3DE 75%)",
+    stops: [
+      { time:"13:00", name:"대형 아쿠아리움", cat:"전시", note:"느린 걸음으로 둘러보다 보면, 대화도 자연스레 끊기지 않아요.", walk:"도보 8분" },
+      { time:"15:30", name:"쇼핑몰 카페", cat:"카페", note:"날씨 걱정 없이, 마음 편히 앉아 쉬어가는 자리.", walk:"도보 5분" },
+      { time:"17:30", name:"영화관", cat:"영화", note:"어떤 하루였든, 무난하게 마무리하기 좋은 선택.", walk:"" },
+    ],
+  },
+];
+
+const allMoods = [...new Set(courses.flatMap(c => c.moods))];
+const allAreas = [...new Set(courses.map(c => c.area))];
+let activeArea = "전체";
+let activeMood = "전체";
+
+function courseCardHTML(c) {
+  return `
+    <div class="course-card" data-id="${c.id}">
+      <div class="cover" style="background:${c.grad}">
+        <span class="bg-icon">${c.bgIcon || c.icon}</span>
+        <span class="main-icon">${c.icon}</span>
+        <span class="area-tag">${c.area}</span>
+      </div>
+      <div class="course-body">
+        <h3>${c.title}</h3>
+        <p class="desc">${c.desc}</p>
+        <div class="moods">${c.moods.map(m => `<span class="mood-chip">${m}</span>`).join('')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function emptyState() {
+  return '<p style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:30px 0;">조건에 맞는 코스가 아직 없어요</p>';
+}
+
+function bindCardClicks(container) {
+  container.querySelectorAll('.course-card').forEach(card => {
+    card.addEventListener('click', () => showDetail(card.dataset.id));
+  });
+}
+
+function renderFilters() {
+  const areaEl = document.getElementById('areaFilters');
+  const moodEl = document.getElementById('moodFilters');
+
+  areaEl.innerHTML = ["전체", ...allAreas].map(a =>
+    `<button class="filter-btn ${a===activeArea?'active area-active':''}" data-area="${a}">${a}</button>`
+  ).join('');
+  moodEl.innerHTML = ["전체", ...allMoods].map(m =>
+    `<button class="filter-btn ${m===activeMood?'active':''}" data-mood="${m}">${m}</button>`
+  ).join('');
+
+  areaEl.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => { activeArea = btn.dataset.area; renderFilters(); renderGrids(); });
+  });
+  moodEl.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => { activeMood = btn.dataset.mood; renderFilters(); renderGrids(); });
+  });
+}
+
+function renderGrids() {
+  const areaGrid = document.getElementById('areaGrid');
+  const areaList = activeArea === "전체" ? courses : courses.filter(c => c.area === activeArea);
+  areaGrid.innerHTML = areaList.length ? areaList.map(courseCardHTML).join('') : emptyState();
+  bindCardClicks(areaGrid);
+
+  const moodGrid = document.getElementById('moodGrid');
+  const moodList = activeMood === "전체" ? courses : courses.filter(c => c.moods.includes(activeMood));
+  moodGrid.innerHTML = moodList.length ? moodList.map(courseCardHTML).join('') : emptyState();
+  bindCardClicks(moodGrid);
+}
+
+function showDetail(id) {
+  const c = courses.find(x => x.id === id);
+  document.getElementById('detailCover').style.background = c.grad;
+  document.getElementById('detailCover').innerHTML = `<span class="bg-icon">${c.bgIcon || c.icon}</span><span class="main-icon">${c.icon}</span>`;
+  document.getElementById('detailTitle').textContent = c.title;
+  document.getElementById('detailSub').textContent = c.area + " · " + c.desc;
+  document.getElementById('detailMoods').innerHTML = c.moods.map(m => `<span class="mood-chip">${m}</span>`).join('');
+
+  document.getElementById('timeline').innerHTML = c.stops.map((s, i) => `
+    <div class="stop">
+      <div class="stop-rail">
+        <div class="stop-dot"></div>
+        ${i < c.stops.length - 1 ? '<div class="stop-line"></div>' : ''}
+      </div>
+      <div class="stop-content">
+        <div class="stop-time">${s.time}</div>
+        <h4 class="stop-name">${s.name}</h4>
+        <div class="stop-cat">${s.cat}</div>
+        <div class="stop-note">${s.note}</div>
+        ${s.walk ? `<div class="walk-note">🚶 ${s.walk} 이동</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('view-list').style.display = 'none';
+  document.getElementById('view-detail').style.display = 'block';
+  window.scrollTo(0,0);
+  location.hash = id;
+}
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('view-detail').style.display = 'none';
+  document.getElementById('view-list').style.display = 'block';
+  history.replaceState(null, '', location.pathname);
+});
+
+renderFilters();
+renderGrids();
+
+if (location.hash) {
+  const id = location.hash.slice(1);
+  if (courses.some(c => c.id === id)) showDetail(id);
+}
+</script>
+
+</body>
+</html>
