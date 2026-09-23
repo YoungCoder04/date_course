@@ -28,12 +28,12 @@ crossorigin="anonymous"></script>
   :root[data-theme="dark"] { --bg:#1C1416; --ink:#F3E9EA; --ink-soft:#B79FA3; --line:#3A2A2D; --card:#241A1D; --accent:#E58A9A; --accent-soft:#332326; }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
-  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',-apple-system,sans-serif; line-height:1.55; }
   h1,h2,h3,.display { font-family:'Instrument Serif', Georgia, serif; font-weight:400; letter-spacing:0.005em; }
   a { color:inherit; text-decoration:none; }
 
-  header { position:sticky; top:env(safe-area-inset-top,0px); z-index:20; display:flex; align-items:center; justify-content:space-between; padding:18px clamp(20px,5vw,56px); background:var(--bg); border-bottom:1px solid var(--line); gap:20px; }
+  header { position:fixed; top:0; left:0; right:0; z-index:30; display:flex; align-items:center; justify-content:space-between; padding:calc(18px + env(safe-area-inset-top,0px)) clamp(20px,5vw,56px) 18px; background:var(--bg); border-bottom:1px solid var(--line); gap:20px; }
   .logo { font-size:1.4rem; flex-shrink:0; }
   .logo span { color:var(--accent); }
   .main-nav { display:flex; gap:18px; overflow-x:auto; scrollbar-width:none; }
@@ -42,7 +42,8 @@ crossorigin="anonymous"></script>
   .main-nav a:hover { color:var(--ink); }
 
   .hero { max-width:760px; margin:0 auto; padding:clamp(40px,7vw,70px) 20px 20px; text-align:center; }
-  .hero h1 { font-size:clamp(1.9rem,4.6vw,2.9rem); line-height:1.2; margin:0 0 14px; }
+  .hero h1 { font-size:clamp(1.9rem,4.6vw,2.9rem); line-height:1.2; margin:0 0 14px; animation: floatSlow 6s ease-in-out infinite; }
+  @keyframes floatSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
   .hero p { color:var(--ink-soft); font-size:1rem; margin:0; }
 
   .filter-group { max-width:1100px; margin:16px auto 0; padding:0 20px; display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; justify-content:center; }
@@ -115,7 +116,7 @@ crossorigin="anonymous"></script>
   .contact-box { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:20px; margin-top:14px; }
   .contact-box a { color:var(--accent); }
 
-  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } html { scroll-behavior:auto; } }
 </style>
 </head>
 <body>
@@ -123,7 +124,6 @@ crossorigin="anonymous"></script>
 <header>
   <div class="logo display">발걸음<span>.</span></div>
   <nav class="main-nav">
-    <a href="#intro">데이트 코스 소개</a>
     <a href="#area-section">지역별 데이트 장소</a>
     <a href="#why">코스 추천 이유</a>
     <a href="#how">이용 방법</a>
@@ -497,6 +497,14 @@ document.getElementById('backBtn').addEventListener('click', () => {
 
 renderFilters();
 renderGrids();
+
+function syncHeaderOffset() {
+  const h = document.querySelector('header').offsetHeight;
+  document.body.style.paddingTop = h + 'px';
+  document.documentElement.style.scrollPaddingTop = (h + 12) + 'px';
+}
+syncHeaderOffset();
+window.addEventListener('resize', syncHeaderOffset);
 
 if (location.hash) {
   const id = location.hash.slice(1);
